@@ -5,7 +5,7 @@
 
   const MAPBOX_ACCESS_TOKEN =
     "pk.eyJ1IjoidHF6aGFuZzA0IiwiYSI6ImNsdnl1OTRjNzJ2cTAyanBnaHB1cG1hODcifQ.AbbWEKcCU1cc2kfGEP6GPQ";
-
+  
   onMount(() => {
     mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
@@ -24,7 +24,7 @@
       .attr("width", "100%")
       .attr("height", "100%")
       .style("position", "absolute")
-      .style("z-index", 2);
+      .style("z-index", 4);
 
     d3.csv(artFile).then(function (d) {
       art_data = d;
@@ -32,7 +32,7 @@
       create_art_markers(d);
       console.log(art_markers);
     });
-
+    
     function create_art_markers(art_data) {
       art_markers = marker_container
         .selectAll("circle")
@@ -102,9 +102,9 @@
 
   $: {
     console.log(year);
-    // if (art_data.length !== 0) {
-    //   update_art_markers();
-    // }
+    if (art_data.length !== 0) {
+      update_art_markers();
+    }
     console.log(artist);
     // console.log(art_data);
     // console.log(art_markers);
@@ -509,18 +509,7 @@
     width: 100vw;
     height: 100vh;
     padding: 0px;
-  }
-  body {
-    margin: 0;
-    padding: 0;
-  }
-
-  #map {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
+    z-index: 1;
   }
 
   input {
