@@ -148,9 +148,12 @@
   let art_color = ["#20fc03", "#f4fc03", "#fca103", "#03b1fc", "#fc0303"];
   let art_markers;
   const default_r = 5;
-  let year = 2022;
+  let year = 1930;
   let artist = "all";
   let stuff = "👶";
+  let incrementId = "Start";
+
+  // document.getElementById("toggleButton").addEventListener("click", toggleInterval)
 
   $: {
     console.log(year);
@@ -169,17 +172,18 @@
   <div class="title">
     <center>
       <h1>Painting a Picture: The Growth of Public Art in San Diego</h1>
-      <p>Currently showing locations of art from before {year} {stuff}</p>
+      <p>Currently showing locations of art made before {year} {stuff}</p>
     </center>
   </div>
   <div class="overlay">
     <label for="yearDisplay"
-      >Scrub to see how public art displays have spread over time</label
+      >Scrub or type a year to see how public art displays have spread over
+      time:</label
     >
     <center>
       <input id="yearDisplay" type="number" bind:value={year} />
     </center>
-    <input id="slider" type="range" min="1950" max="2022" bind:value={year} />
+    <input id="slider" type="range" min="1930" max="2022" bind:value={year} />
     <label for="artist" color="#deadff">Artist to display:</label>
     <select id="artist" name="artist" bind:value={artist}>
       <option value="all">All Artists</option>
@@ -627,7 +631,7 @@
 
   input[type="number"] {
     text-align: center;
-    background:none;
+    background: none;
     border: none;
     outline: none;
     font-size: 20px;
@@ -635,12 +639,14 @@
     color: black;
     width: 100px;
     padding: 10px;
+    transition-duration: 200ms;
   }
 
   input[type="number"]:focus {
     outline: none;
     background-color: lightgray;
     border-color: #007bff;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); 
+    box-shadow: 0 0 5px goldenrod;
+    transition-duration: 200ms;
   }
 </style>
