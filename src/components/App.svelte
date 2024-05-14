@@ -2,12 +2,23 @@
   import { onMount } from "svelte";
   import * as d3 from "d3";
 
-  let year = 2022;
+  let year = 1930;
   let artist = "all";
   let art_data = [];
-  let art_color = ["#20fc03", "#f4fc03", "#fca103", "#03b1fc", "#fc0303"];
+  let art_color = ["#20fc03", "#f4fc03", "#fca103", "#fc0303", "#03b1fc"];
+  const colorScale = d3
+    .scaleOrdinal()
+    .domain([
+      "On View",
+      "Installation pending",
+      "Temporary Installation",
+      "By Appointment",
+      "Public Tours",
+    ])
+    .range(art_color);
   const artFile =
     "https://raw.githubusercontent.com/TQZhang04/106-project3/main/public_art_locations_datasd.csv";
+  const max_r = 10
 
   onMount(() => {
     const width = document.getElementById("map").clientWidth;
@@ -19,18 +30,33 @@
       .attr("height", height);
 
     svg
+      .append("defs")
+      .append("filter")
+      .attr("id", "grayscale")
+      .append("feColorMatrix")
+      .attr("type", "matrix")
+      .attr(
+        "values",
+        "0.1 0.3333 0.3333 0 0 \
+        0.1 0.3333 0.3333 0 0 \
+        0.1 0.3333 0.3333 0 0 \
+        0     0       0      1 0"
+      );
+
+    svg
       .append("image")
       .attr(
         "xlink:href",
-        "https://github.com/TQZhang04/106-project3-2/blob/main/San%20Diego.png?raw=true"
+        "https://github.com/TQZhang04/106-project3-2/blob/main/San%20Diego%20zoomed2.png?raw=true"
       )
-      .attr("width", width)
-      .attr("height", height);
+      .attr("width", "100%")
+      .attr("height", "100%")
+      .attr("filter", "url(#grayscale)");
 
     const projection = d3
       .geoMercator()
-      .center([-117.029087, 33.0367])
-      .scale(50000)
+      .center([-117.172087, 32.8437])
+      .scale(90000)
       .translate([width / 2, height / 2]);
 
     d3.csv(artFile).then(function (data) {
@@ -47,56 +73,35 @@
         .attr("cy", function (d) {
           return projection([+d.lng, +d.lat])[1];
         })
-        .attr("r", 5)
+        .attr("r", max_r)
         .style("fill", function (d) {
-          if (d["status"] == "Collection Status : On View") {
-            return art_color[0];
-          }
-          if (d["status"] == "Collection Status : Installation pending") {
-            return art_color[1];
-          }
-          if (d["status"] == "Collection Status : Temporary Installation") {
-            return art_color[2];
-          }
-          if (
-            d["status"] ==
-            "Collection Status : Public Tours Available / Contact the Commission for Arts and Culture"
-          ) {
-            return art_color[3];
-          }
-          if (
-            d["status"] ==
-            "Collection Status : By Appointment Only / Contact the Hervey Family Rare Book Room"
-          ) {
-            return art_color[4];
-          }
-          if (
-            d["status"] ==
-            "Collection Status : By Appointment Only / Contact the Commission for Arts and Culture"
-          ) {
-            return art_color[4];
-          }
+          let status_split = d["status"].split(" ");
+          let status = status_split[3].concat(" ", status_split[4]);
+          return colorScale(status);
         });
 
       function updateMarkers() {
-        artMarkers.attr("r", function (d) {
-          const artYear = +d.accession_number.slice(0, 4);
-          let artist_name = d.artist;
-          let artist_group = artist_name.includes("(");
-          if (artist_group) {
-            artist_name = artist_name.slice(0, artist_name.indexOf("("));
-          }
-          let artist_list = artist_name.split("|");
-          for (let i = 0; i < artist_list.length; i++) {
-            artist_list[i] = artist_list[i].trim();
-          }
-          if (artYear <= year) {
-            if (artist == "all" || artist_list.includes(artist)) {
-              return 5;
+        artMarkers
+          .transition()
+          .duration(200)
+          .attr("r", function (d) {
+            const artYear = +d.accession_number.slice(0, 4);
+            let artist_name = d.artist;
+            let artist_group = artist_name.includes("(");
+            if (artist_group) {
+              artist_name = artist_name.slice(0, artist_name.indexOf("("));
             }
-          }
-          return 0;
-        });
+            let artist_list = artist_name.split("|");
+            for (let i = 0; i < artist_list.length; i++) {
+              artist_list[i] = artist_list[i].trim();
+            }
+            if (artYear <= year) {
+              if (artist == "all" || artist_list.includes(artist)) {
+                return max_r;
+              }
+            }
+            return 0;
+          });
       }
 
       document.getElementById("slider").addEventListener("input", function () {
@@ -114,13 +119,9 @@
 
       document
         .getElementById("artistSelector")
-        .addEventListener("onchange", function () {
-          artist = +this.value;
+        .addEventListener("change", function () {
+          updateMarkers();
         });
-
-      document
-        .getElementById("confirmArtist")
-        .addEventListener("click", updateMarkers);
 
       updateMarkers();
     });
@@ -137,14 +138,16 @@
   </div>
   <div class="overlay">
     <label for="yearDisplay"
-      >Scrub or type a year to see how public art displays have spread over
-      time:</label
+      >Scrub or type a year to see how public art has spread over time:</label
     >
+    <br />
     <center>
       <input id="yearDisplay" type="number" bind:value={year} />
     </center>
     <input id="slider" type="range" min="1930" max="2022" bind:value={year} />
+    <br /><br />
     <label for="artist" color="#deadff">Artist to display:</label>
+    <br />
     <select id="artistSelector" name="artist" bind:value={artist}>
       <option value="all">All Artists</option>
       <option value="Alvaro Blancarte"> Alvaro Blancarte </option>
@@ -503,18 +506,13 @@
       <option value="possibly R.E. Henderson"> possibly R.E. Henderson </option>
       <option value="scott b. davis"> scott b. davis </option>
     </select>
-    <center>
-      <input id="confirmArtist" type="button" value="Confirm" />
-    </center>
   </div>
   <div class="legend">
     <center>
       <h3>Collection Status</h3>
     </center>
     <ul>
-      <li>🟩 - On View</li>
-      <li class="label">🟨 - Installation pending</li>
-      <li class="label">🟧 - Temporary Installation</li>
+      <li>🟩 - On Display</li>
       <li class="label">🟥 - By Appointment Only</li>
       <li class="label">🟦 - Public Tours Available</li>
     </ul>
@@ -576,7 +574,6 @@
     font-family: sans-serif;
     font-weight: bold;
     color: black;
-    float: left;
   }
   input[type="number"] {
     text-align: center;
@@ -598,23 +595,10 @@
     transition-duration: 200ms;
   }
 
-  input[type="button"] {
-    padding: 5px 30px;
-    font-size: 16px; /* Adjust font size as needed */
-    background-color: #f0f0f0; /* Button background color */
-    color: #333; /* Text color */
-    border: 2px solid #ccc; /* Border style */
-    border-radius: 5px; /* Border radius */
-    cursor: pointer;
-    font-weight: bold;
-    transition:
-      background-color 0.3s,
-      color 0.3s,
-      border-color 0.3s; /* Smooth transition */
-  }
-
-  input[type="button"]:hover {
-    background-color: #deadff; /* Hover background color */
-    color: #fff; /* Hover text color */
+  input,
+  select {
+    width: 300px;
+    right: 5px;
+    position: relative;
   }
 </style>
