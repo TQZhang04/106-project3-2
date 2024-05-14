@@ -22,7 +22,7 @@
       .append("image")
       .attr(
         "xlink:href",
-        "https://github.com/TQZhang04/106-project3-2/blob/main/San%20Diego%20zoomed.png?raw=true"
+        "https://github.com/TQZhang04/106-project3-2/blob/main/San%20Diego.png?raw=true"
       )
       .attr("width", width)
       .attr("height", height);
