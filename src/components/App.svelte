@@ -169,7 +169,7 @@
     <label for="artist" color="#deadff">Artist to display:</label>
     <br />
     <select id="artistSelector" name="artist" bind:value={artist}>
-      <option value="all">All Artists</option>
+ <option value="all">All Artists</option>
       <option value="Alvaro Blancarte"> Alvaro Blancarte </option>
       <option value="Angelo Camporaso"> Angelo Camporaso </option>
       <option value="Bernard Bobitch"> Bernard Bobitch </option>
@@ -544,6 +544,7 @@
     width: 100vw;
     height: 100vh;
     padding: 0px;
+    background-color: #bdbdbd;
   }
   .title {
     font-size: 1vw;
@@ -621,4 +622,5 @@
     font-size: 1vw;
     position: relative;
   }
+  
 </style>
